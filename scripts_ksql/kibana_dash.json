@@ -22,12 +22,12 @@
       "version": 1,
       "attributes": {
         "title": "Top Edited Pages",
-        "visState": "{\"aggs\":[{\"enabled\":true,\"id\":\"1\",\"params\":{},\"schema\":\"metric\",\"type\":\"count\"},{\"enabled\":true,\"id\":\"2\",\"params\":{\"field\":\"wikipage\",\"order\":\"desc\",\"orderBy\":\"1\",\"size\":25},\"schema\":\"bucket\",\"type\":\"terms\"}],\"listeners\":{},\"params\":{\"perPage\":10,\"showMeticsAtAllLevels\":false,\"showPartialRows\":false,\"showTotal\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"totalFunc\":\"sum\"},\"title\":\"Top Edited Pages\",\"type\":\"table\"}",
+        "visState": "{\"aggs\":[{\"enabled\":true,\"id\":\"1\",\"params\":{},\"schema\":\"metric\",\"type\":\"count\"},{\"enabled\":true,\"id\":\"2\",\"params\":{\"field\":\"WIKIPAGE\",\"order\":\"desc\",\"orderBy\":\"1\",\"size\":25},\"schema\":\"bucket\",\"type\":\"terms\"}],\"listeners\":{},\"params\":{\"perPage\":10,\"showMeticsAtAllLevels\":false,\"showPartialRows\":false,\"showTotal\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"totalFunc\":\"sum\"},\"title\":\"Top Edited Pages\",\"type\":\"table\"}",
         "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
         "description": "",
         "version": 1,
         "kibanaSavedObjectMeta": {
-          "searchSourceJSON": "{\"index\":\"wikipedia.parsed\",\"query\":{\"query_string\":{\"analyze_wildcard\":true,\"query\":\"*\"}},\"filter\":[]}"
+          "searchSourceJSON": "{\"index\":\"wikipediabot\",\"query\":{\"query_string\":{\"analyze_wildcard\":true,\"query\":\"*\"}},\"filter\":[]}"
         }
       }
     },
@@ -37,12 +37,12 @@
       "version": 1,
       "attributes": {
         "title": "Top Editors",
-        "visState": "{\"title\":\"Top Editors\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showMeticsAtAllLevels\":false,\"showPartialRows\":false,\"showTotal\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"totalFunc\":\"sum\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"username\",\"size\":25,\"order\":\"desc\",\"orderBy\":\"1\"}}],\"listeners\":{}}",
+        "visState": "{\"title\":\"Top Editors\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showMeticsAtAllLevels\":false,\"showPartialRows\":false,\"showTotal\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"totalFunc\":\"sum\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"USERNAME\",\"size\":25,\"order\":\"desc\",\"orderBy\":\"1\"}}],\"listeners\":{}}",
         "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
         "description": "",
         "version": 1,
         "kibanaSavedObjectMeta": {
-          "searchSourceJSON": "{\"index\":\"wikipedia.parsed\",\"query\":{\"query_string\":{\"analyze_wildcard\":true,\"query\":\"*\"}},\"filter\":[]}"
+          "searchSourceJSON": "{\"index\":\"wikipediabot\",\"query\":{\"query_string\":{\"analyze_wildcard\":true,\"query\":\"*\"}},\"filter\":[]}"
         }
       }
     },
@@ -52,7 +52,7 @@
       "version": 1,
       "attributes": {
         "title": "Average byte change",
-        "visState": "{\"type\":\"timelion\",\"title\":\"Average byte change\",\"params\":{\"expression\":\".es(metric='avg:bytechange').color(\\\"#c6c6c6\\\")\",\"interval\":\"auto\"}}",
+        "visState": "{\"type\":\"timelion\",\"title\":\"Average byte change\",\"params\":{\"expression\":\".es(metric='avg:BYTECHANGE').color(\\\"#c6c6c6\\\")\",\"interval\":\"auto\"}}",
         "uiStateJSON": "{}",
         "description": "",
         "version": 1,
@@ -67,7 +67,7 @@
       "version": 1,
       "attributes": {
         "title": "Percentage of edits that are bots",
-        "visState": "{\"title\":\"Percentage of edits that are bots\",\"type\":\"timelion\",\"params\":{\"expression\":\".es('isbot:true').divide(.es()).multiply(100).yaxis(max=100)\",\"interval\":\"auto\"},\"aggs\":[],\"listeners\":{}}",
+        "visState": "{\"title\":\"Percentage of edits that are bots\",\"type\":\"timelion\",\"params\":{\"expression\":\".es('ISBOT:true').divide(.es()).multiply(100).yaxis(max=100)\",\"interval\":\"auto\"},\"aggs\":[],\"listeners\":{}}",
         "uiStateJSON": "{}",
         "description": "",
         "version": 1,
@@ -82,7 +82,7 @@
       "version": 1,
       "attributes": {
         "title": "Percentage of edits that are minor",
-        "visState": "{\"title\":\"Percentage of edits that are minor\",\"type\":\"timelion\",\"params\":{\"expression\":\".es('isminor:true').divide(.es()).multiply(100).color(#ea7272).yaxis(max=100)\",\"interval\":\"auto\"},\"aggs\":[],\"listeners\":{}}",
+        "visState": "{\"title\":\"Percentage of edits that are minor\",\"type\":\"timelion\",\"params\":{\"expression\":\".es('ISMINOR:true').divide(.es()).multiply(100).color(#ea7272).yaxis(max=100)\",\"interval\":\"auto\"},\"aggs\":[],\"listeners\":{}}",
         "uiStateJSON": "{}",
         "description": "",
         "version": 1,
@@ -97,7 +97,7 @@
       "version": 1,
       "attributes": {
         "title": "Percentage of edits that are new",
-        "visState": "{\"title\":\"Percentage of edits that are new\",\"type\":\"timelion\",\"params\":{\"expression\":\".es('isnew:true').divide(.es()).multiply(100).color(#72d586).yaxis(max=100)\",\"interval\":\"auto\"},\"aggs\":[],\"listeners\":{}}",
+        "visState": "{\"title\":\"Percentage of edits that are new\",\"type\":\"timelion\",\"params\":{\"expression\":\".es('ISNEW:true').divide(.es()).multiply(100).color(#72d586).yaxis(max=100)\",\"interval\":\"auto\"},\"aggs\":[],\"listeners\":{}}",
         "uiStateJSON": "{}",
         "description": "",
         "version": 1,
@@ -112,7 +112,7 @@
       "version": 1,
       "attributes": {
         "title": "Percentage of edits that are unpatrolled",
-        "visState": "{\"title\":\"Percentage of edits that are unpatrolled\",\"type\":\"timelion\",\"params\":{\"expression\":\".es('isunpatrolled:true').divide(.es()).multiply(100).color(#76cfd5).yaxis(max=100)\",\"interval\":\"auto\"},\"aggs\":[],\"listeners\":{}}",
+        "visState": "{\"title\":\"Percentage of edits that are unpatrolled\",\"type\":\"timelion\",\"params\":{\"expression\":\".es('ISUNPATROLLED:true').divide(.es()).multiply(100).color(#76cfd5).yaxis(max=100)\",\"interval\":\"auto\"},\"aggs\":[],\"listeners\":{}}",
         "uiStateJSON": "{}",
         "description": "",
         "version": 1,
@@ -127,23 +127,23 @@
       "version": 1,
       "attributes": {
         "title": "Wikipage by Average Bytechange",
-        "visState": "{\"title\":\"Wikipage by Average Bytechange\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showPartialRows\":false,\"showMeticsAtAllLevels\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"showTotal\":false,\"totalFunc\":\"sum\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"avg\",\"schema\":\"metric\",\"params\":{\"field\":\"bytechange\"}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"wikipage\",\"size\":25,\"order\":\"desc\",\"orderBy\":\"1\"}}],\"listeners\":{}}",
+        "visState": "{\"title\":\"Wikipage by Average Bytechange\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showPartialRows\":false,\"showMeticsAtAllLevels\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"showTotal\":false,\"totalFunc\":\"sum\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"avg\",\"schema\":\"metric\",\"params\":{\"field\":\"BYTECHANGE\"}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"WIKIPAGE\",\"size\":25,\"order\":\"desc\",\"orderBy\":\"1\"}}],\"listeners\":{}}",
         "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
         "description": "",
         "version": 1,
         "kibanaSavedObjectMeta": {
-          "searchSourceJSON": "{\"index\":\"wikipedia.parsed\",\"query\":{\"query_string\":{\"query\":\"*\",\"analyze_wildcard\":true}},\"filter\":[]}"
+          "searchSourceJSON": "{\"index\":\"wikipediabot\",\"query\":{\"query_string\":{\"query\":\"*\",\"analyze_wildcard\":true}},\"filter\":[]}"
         }
       }
     },
     {
-      "id": "wikipedia.parsed",
+      "id": "wikipediabot",
       "type": "index-pattern",
       "version": 2,
       "attributes": {
-        "title": "wikipedia.parsed",
+        "title": "wikipediabot",
         "notExpandable": true,
-        "fields": "[{\"name\":\"_id\",\"type\":\"string\",\"count\":0,\"scripted\":false,\"searchable\":true,\"aggregatable\":false,\"readFromDocValues\":false},{\"name\":\"_index\",\"type\":\"string\",\"count\":0,\"scripted\":false,\"searchable\":true,\"aggregatable\":true,\"readFromDocValues\":false},{\"name\":\"_score\",\"type\":\"number\",\"count\":0,\"scripted\":false,\"searchable\":false,\"aggregatable\":false,\"readFromDocValues\":false},{\"name\":\"_source\",\"type\":\"_source\",\"count\":0,\"scripted\":false,\"searchable\":false,\"aggregatable\":false,\"readFromDocValues\":false},{\"name\":\"_type\",\"type\":\"string\",\"count\":0,\"scripted\":false,\"searchable\":true,\"aggregatable\":true,\"readFromDocValues\":false},{\"name\":\"bytechange\",\"type\":\"number\",\"count\":0,\"scripted\":false,\"searchable\":true,\"aggregatable\":true,\"readFromDocValues\":true},{\"name\":\"channel\",\"type\":\"string\",\"count\":0,\"scripted\":false,\"searchable\":true,\"aggregatable\":false,\"readFromDocValues\":false},{\"name\":\"channel.keyword\",\"type\":\"string\",\"count\":0,\"scripted\":false,\"searchable\":true,\"aggregatable\":true,\"readFromDocValues\":true},{\"name\":\"commitmessage\",\"type\":\"string\",\"count\":0,\"scripted\":false,\"searchable\":true,\"aggregatable\":false,\"readFromDocValues\":false},{\"name\":\"createdat\",\"type\":\"date\",\"count\":0,\"scripted\":false,\"searchable\":true,\"aggregatable\":true,\"readFromDocValues\":true},{\"name\":\"diffurl\",\"type\":\"string\",\"count\":0,\"scripted\":false,\"searchable\":true,\"aggregatable\":false,\"readFromDocValues\":false},{\"name\":\"isbot\",\"type\":\"boolean\",\"count\":0,\"scripted\":false,\"searchable\":true,\"aggregatable\":true,\"readFromDocValues\":true},{\"name\":\"isminor\",\"type\":\"boolean\",\"count\":0,\"scripted\":false,\"searchable\":true,\"aggregatable\":true,\"readFromDocValues\":true},{\"name\":\"isnew\",\"type\":\"boolean\",\"count\":0,\"scripted\":false,\"searchable\":true,\"aggregatable\":true,\"readFromDocValues\":true},{\"name\":\"isunpatrolled\",\"type\":\"boolean\",\"count\":0,\"scripted\":false,\"searchable\":true,\"aggregatable\":true,\"readFromDocValues\":true},{\"name\":\"username\",\"type\":\"string\",\"count\":0,\"scripted\":false,\"searchable\":true,\"aggregatable\":true,\"readFromDocValues\":true},{\"name\":\"wikipage\",\"type\":\"string\",\"count\":0,\"scripted\":false,\"searchable\":true,\"aggregatable\":true,\"readFromDocValues\":true}]"
+        "fields": "[{\"name\":\"BYTECHANGE\",\"type\":\"number\",\"count\":0,\"scripted\":false,\"searchable\":true,\"aggregatable\":true,\"readFromDocValues\":true},{\"name\":\"COMMITMESSAGE\",\"type\":\"string\",\"count\":0,\"scripted\":false,\"searchable\":true,\"aggregatable\":false,\"readFromDocValues\":false},{\"name\":\"CREATEDAT\",\"type\":\"date\",\"count\":0,\"scripted\":false,\"searchable\":true,\"aggregatable\":true,\"readFromDocValues\":true},{\"name\":\"DIFFURL\",\"type\":\"string\",\"count\":0,\"scripted\":false,\"searchable\":true,\"aggregatable\":false,\"readFromDocValues\":false},{\"name\":\"ISBOT\",\"type\":\"boolean\",\"count\":0,\"scripted\":false,\"searchable\":true,\"aggregatable\":true,\"readFromDocValues\":true},{\"name\":\"ISMINOR\",\"type\":\"boolean\",\"count\":0,\"scripted\":false,\"searchable\":true,\"aggregatable\":true,\"readFromDocValues\":true},{\"name\":\"ISNEW\",\"type\":\"boolean\",\"count\":0,\"scripted\":false,\"searchable\":true,\"aggregatable\":true,\"readFromDocValues\":true},{\"name\":\"ISUNPATROLLED\",\"type\":\"boolean\",\"count\":0,\"scripted\":false,\"searchable\":true,\"aggregatable\":true,\"readFromDocValues\":true},{\"name\":\"USERNAME\",\"type\":\"string\",\"count\":0,\"scripted\":false,\"searchable\":true,\"aggregatable\":true,\"readFromDocValues\":true},{\"name\":\"WIKIPAGE\",\"type\":\"string\",\"count\":0,\"scripted\":false,\"searchable\":true,\"aggregatable\":true,\"readFromDocValues\":true},{\"name\":\"_id\",\"type\":\"string\",\"count\":0,\"scripted\":false,\"searchable\":true,\"aggregatable\":false,\"readFromDocValues\":false},{\"name\":\"_index\",\"type\":\"string\",\"count\":0,\"scripted\":false,\"searchable\":true,\"aggregatable\":true,\"readFromDocValues\":false},{\"name\":\"_score\",\"type\":\"number\",\"count\":0,\"scripted\":false,\"searchable\":false,\"aggregatable\":false,\"readFromDocValues\":false},{\"name\":\"_source\",\"type\":\"_source\",\"count\":0,\"scripted\":false,\"searchable\":false,\"aggregatable\":false,\"readFromDocValues\":false},{\"name\":\"_type\",\"type\":\"string\",\"count\":0,\"scripted\":false,\"searchable\":true,\"aggregatable\":true,\"readFromDocValues\":false}]"
       }
     },
     {
