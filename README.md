@@ -96,29 +96,17 @@ Follow along with the video [![Demo 1: Install + Run | Monitoring Kafka in Confl
 	control-center_1       | [2017-09-06 16:37:33,133] INFO Started NetworkTrafficServerConnector@26a529dc{HTTP/1.1}{0.0.0.0:9021} (org.eclipse.jetty.server.NetworkTrafficServerConnector)
 	```
 
-4. Decide how you want to run the rest of the demo, with or without KSQL. The reason there are two ways to run the demo is because KSQL does not support Avro with [Schema Registry](http://docs.confluent.io/current/schema-registry/docs/index.html) at this time. When KSQL supports Avro with Schema Registry, we will collapse the workflows into one.
+4. Setup the cluster and connectors. Data streams from Wikipedia IRC to KSQL to Elasticsearch, and the Kafka source and sink connectors use Avro with Confluent Schema Registry.
 
 	```bash
-	# With KSQL: data streams from Wikipedia IRC to KSQL to Elasticsearch. The Kafka source and sink connectors use Json
-	$ export DEMOPATH=scripts_ksql
+	$ scripts_ksql/setup.sh
 	```
 
-	```bash
-	# Without KSQL: data streams straight through Kafka from Wikipedia IRC to Elasticsearch without KSQL. The Kafka source and sink connectors use Avro with Confluent Schema Registry
-	$ export DEMOPATH=scripts_pipeline
-	```
-
-5. Setup the cluster and connectors
-
-	```bash
-	$ ./$DEMOPATH/setup.sh
-	```
-
-6. Use Google Chrome to view the Confluent Control Center GUI at [http://localhost:9021](http://localhost:9021). 
+5. Use Google Chrome to view the Confluent Control Center GUI at [http://localhost:9021](http://localhost:9021). 
 
 	Click on the top right button that shows the current date, and change `Last 4 hours` to `Last 30 minutes`.
 
-7. View the data in the Kibana dashboard at [http://localhost:5601/app/kibana#/dashboard/Wikipedia](http://localhost:5601/app/kibana#/dashboard/Wikipedia)
+6. View the data in the Kibana dashboard at [http://localhost:5601/app/kibana#/dashboard/Wikipedia](http://localhost:5601/app/kibana#/dashboard/Wikipedia)
 
 
 ## Playbook
@@ -141,7 +129,7 @@ Follow along with the video [![Demo 2: Tour | Monitoring Kafka in Confluent Cont
 
 		![image](images/connect_source.png)
 
-	* Kafka Connect **Sinks** tab shows the connector `elasticsearch-ksql` (or `elasticsearch-pipeline` if you are running without KSQL). Click "Edit" to see the details of the connector configuration and custom transforms.
+	* Kafka Connect **Sinks** tab shows the connector `elasticsearch-ksql`. Click "Edit" to see the details of the connector configuration and custom transforms.
 
 		![image](images/connect_sink.png)
 
@@ -165,8 +153,6 @@ Follow along with the video [![Demo 2: Tour | Monitoring Kafka in Confluent Cont
 ### KSQL
 
 Follow along with the video [![Demo 3: KSQL | Monitoring Kafka in Confluent Control Center](images/play-button.png)](https://youtu.be/U_ntFVXWBPc)
-
-If you ran the demo with KSQL, i.e. `DEMOPATH=scripts_ksql`, then there are additional things you can look at. If you did not run the demo with KSQL, skip this section.
 
 1. Run KSQL CLI to get more information on the queries, streams, and tables.
 
@@ -204,7 +190,7 @@ Control Center shows which consumers in a consumer group are consuming from whic
 1. Start consuming from topic `wikipedia.parsed` with a new consumer group `app` with one consumer `consumer_app_1`. It will run in the background.
 
 	```bash
-	$ ./$DEMOPATH/start_consumer_app.sh 1
+	$ scripts_ksql/start_consumer_app.sh 1
 	```
 
 2. Let this consumer group run for 2 minutes until Control Center stream monitoring shows the consumer group `app` with steady consumption. Click on the box "View Details" above the bar graph to drill down into consumer group details. This consumer group `app` has a single consumer `consumer_app_1` consuming all of the partitions in the topic `wikipedia.parsed`. The first bar may be red because the consumer started in the middle of a time window and did not receive all messages produced during that window. This does not mean messages were lost.
@@ -214,7 +200,7 @@ Control Center shows which consumers in a consumer group are consuming from whic
 3. Add a second consumer `consumer_app_2` to the existing consumer group `app`.
 
 	```bash
-	$ ./$DEMOPATH/start_consumer_app.sh 2
+	$ scripts_ksql/start_consumer_app.sh 2
 	```
 
 4. Let this consumer group run for 2 minutes until Control Center stream monitoring shows the consumer group `app` with steady consumption. Notice that the consumers `consumer_app_1` and `consumer_app_2` now share consumption of the partitions in the topic `wikipedia.parsed`. When the second consumer was added, that bar may be red for both consumers because a consumer rebalance occurred during that time window. This does not mean messages were lost, as you can confirm at the consumer group level.
@@ -237,10 +223,10 @@ Streams monitoring in Control Center can highlight consumers that are slow to ke
 3. Add a consumption quota for one of the consumers in the consumer group `app`.
 
 	```bash
-	$ ./$DEMOPATH/throttle_consumer.sh 1 add
+	$ scripts_ksql/throttle_consumer.sh 1 add
 	```
 
-	_Note_: you are running a Docker demo environment with all services running on one host, which you would never do in production. Depending on your system resource availability, sometimes applying the quota may stall the consumer ([KAFKA-5871](https://issues.apache.org/jira/browse/KAFKA-5871)), thus you may need to adjust the quota rate. See the `./$DEMOPATH/throttle_consumer.sh` script for syntax on modifying the quota rate.
+	_Note_: you are running a Docker demo environment with all services running on one host, which you would never do in production. Depending on your system resource availability, sometimes applying the quota may stall the consumer ([KAFKA-5871](https://issues.apache.org/jira/browse/KAFKA-5871)), thus you may need to adjust the quota rate. See the `scripts_ksql/throttle_consumer.sh` script for syntax on modifying the quota rate.
 
 	* If consumer group `app` does not increase latency, decrease the quota rate
 	* If consumer group `app` seems to stall, increase the quota rate
@@ -260,7 +246,7 @@ Streams monitoring in Control Center can highlight consumers that are slow to ke
 7. Remove the consumption quota for the consumer. Latency for `consumer_app_1` recovers to steady state values.
 
 	```bash
-	$ ./$DEMOPATH/throttle_consumer.sh 1 delete
+	$ scripts_ksql/throttle_consumer.sh 1 delete
 	```
 
 ### Over consumption
@@ -278,7 +264,7 @@ Streams monitoring in Control Center can highlight consumers that are over consu
 3. Stop the consumer group `app` to stop consuming from topic `wikipedia.parsed`. Note that the command below stops the consumers gracefully with `kill -15`, so the consumers follow the shutdown sequence.
 
 	```bash
-	$ ./$DEMOPATH/stop_consumer_app_group_graceful.sh
+	$ scripts_ksql/stop_consumer_app_group_graceful.sh
 	```
 
 4. Wait for 2 minutes to let messages continue to be written to the topics for a while, without being consumed by the consumer group `app`. Notice the red bar which highlights that during the time window when the consumer group was stopped, there were some messages produced but not consumed. These messages are not missing, they are just not consumed because the consumer group stopped.
@@ -298,8 +284,8 @@ Streams monitoring in Control Center can highlight consumers that are over consu
 6. Restart consuming from topic `wikipedia.parsed` with the consumer group `app` with two consumers.
 
 	```bash
-	$ ./$DEMOPATH/start_consumer_app.sh 1
-	$ ./$DEMOPATH/start_consumer_app.sh 2
+	$ scripts_ksql/start_consumer_app.sh 1
+	$ scripts_ksql/start_consumer_app.sh 2
 	```
 
 7. Let this consumer group run for 2 minutes until Control Center stream monitoring shows the consumer group `app` with steady consumption. Notice several things:
@@ -326,7 +312,7 @@ Streams monitoring in Control Center can highlight consumers that are under cons
 3. Stop the consumer group `app` to stop consuming from topic `wikipedia.parsed`. Note that the command below stops the consumers ungracefully with `kill -9`, so the consumers did not follow the shutdown sequence.
 
 	```bash
-	$ ./$DEMOPATH/stop_consumer_app_group_ungraceful.sh
+	$ scripts_ksql/stop_consumer_app_group_ungraceful.sh
 	```
 
 4. Wait for 2 minutes to let messages continue to be written to the topics for a while, without being consumed by the consumer group `app`. Notice the red bar which highlights that during the time window when the consumer group was stopped, there were some messages produced but not consumed. These messages are not missing, they are just not consumed because the consumer group stopped.
@@ -350,8 +336,8 @@ Streams monitoring in Control Center can highlight consumers that are under cons
 7. Restart consuming from topic `wikipedia.parsed` with the consumer group `app` with two consumers.
 
 	```bash
-	$ ./$DEMOPATH/start_consumer_app.sh 1
-	$ ./$DEMOPATH/start_consumer_app.sh 2
+	$ scripts_ksql/start_consumer_app.sh 1
+	$ scripts_ksql/start_consumer_app.sh 2
 	```
 
 8. Let this consumer group run for 2 minutes until Control Center stream monitoring shows the consumer group `app` with steady consumption. Notice that during the time period that the consumer group `app` was not running, no produced messages are shown as delivered.
@@ -425,7 +411,7 @@ There are many types of Control Center [alerts](https://docs.confluent.io/curren
 * __**Viewing topic data**__: if you want to watch the live messages from the `wikipedia.parsed` topic:
 
 	```bash
-	$ ./$DEMOPATH/listen_wikipedia.parsed.sh
+	$ scripts_ksql/listen_wikipedia.parsed.sh
 	```
 
 ## Teardown
@@ -433,11 +419,11 @@ There are many types of Control Center [alerts](https://docs.confluent.io/curren
 1.  Stop the consumer group `app` to stop consuming from topic `wikipedia.parsed`. Note that the command below stops the consumers gracefully with `kill -15`, so the consumers follow the shutdown sequence.
 
 	```bash
-	$ ./$DEMOPATH/stop_consumer_app_group_graceful.sh
+	$ scripts_ksql/stop_consumer_app_group_graceful.sh
 	```
 
 2. Stop the Docker demo, destroy all components and clear all Docker volumes.
 
 	```bash
-	$ ./$DEMOPATH/reset_demo.sh
+	$ scripts_ksql/reset_demo.sh
 	```

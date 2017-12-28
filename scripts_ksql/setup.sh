@@ -8,7 +8,7 @@ fi
 DOCKER_MEMORY=$(docker system info | grep Memory | grep -o "[0-9\.]\+")
 if (( $(echo "$DOCKER_MEMORY 7.0" | awk '{print ($1 < $2)}') )); then
   echo -e "\nWARNING: Did you remember to increase the memory available to Docker to at least 8GB (default is 2GB)? Demo may otherwise not work properly.\n"
-  sleep 3
+  sleep 5
 fi
 
 if [[ $(docker-compose ps) =~ "Exit 137" ]]; then
@@ -39,7 +39,7 @@ echo -e "\nStart streaming to Elasticsearch sink connector:"
 echo -e "\nConfigure Kibana dashboard:"
 ./scripts_ksql/configure_kibana_dashboard.sh
 
-echo -e "\nStart KSQL engine and running queries:"
+echo -e "\n\nStart KSQL engine and running queries:"
 ./scripts_ksql/run_ksql.sh
 
 echo -e "\nStart consumers for additional topics:"
@@ -53,3 +53,5 @@ echo -e "\nConfigure triggers and actions in Control Center:"
 curl -X POST -H "Content-Type: application/json" -d '{"name":"Consumption Difference","clusterId":"'$(curl -X get http://localhost:9021/2.0/clusters/kafka/ | jq --raw-output .[0].clusterId)'","group":"connect-elasticsearch-ksql","metric":"CONSUMPTION_DIFF","condition":"GREATER_THAN","longValue":"0","lagMs":"5000"}' http://localhost:9021/2.0/alerts/triggers
 curl -X POST -H "Content-Type: application/json" -d '{"name":"Under Replicated Partitions","clusterId":"default","condition":"GREATER_THAN","longValue":"0","lagMs":"60000","brokerClusters":{"brokerClusters":["'$(curl -X get http://localhost:9021/2.0/clusters/kafka/ | jq --raw-output ".[0].clusterId")'"]},"brokerMetric":"UNDER_REPLICATED_TOPIC_PARTITIONS"}' http://localhost:9021/2.0/alerts/triggers
 curl -X POST -H "Content-Type: application/json" -d '{"name":"Email Administrator","enabled":true,"triggerGuid":["'$(curl -X get http://localhost:9021/2.0/alerts/triggers/ | jq --raw-output .[0].guid)'","'$(curl -X get http://localhost:9021/2.0/alerts/triggers/ | jq --raw-output .[1].guid)'"],"maxSendRateNumerator":1,"intervalMs":"60000","email":{"address":"devnull@confluent.io","subject":"Confluent Control Center alert"}}' http://localhost:9021/2.0/alerts/actions
+
+echo -e "\n\nDemo setup complete!"
