@@ -12,8 +12,8 @@
     * [Under consumption](#under-consumption)
     * [Failed broker](#failed-broker)
     * [Alerting](#alerting)
-    * [Security](#security)
     * [Replicator](#replicator)
+    * [Security](#security)
 - [Troubleshooting the demo](#troubleshooting-the-demo)
 - [Teardown](#teardown)
 
@@ -26,46 +26,36 @@ The use case is a streaming pipeline built around live edits to real Wikipedia p
 
 ![image](images/drawing.png)
 
+-------------------------------------------------------------
 _Note_: this is a Docker environment and has all services running on one host. This demo is not to be used in production; this is exclusively to easily demo the Confluent Platform. In production, Confluent Control Center should be deployed with a valid license and with its own dedicated metrics cluster, separate from the cluster with production traffic. Using a dedicated metrics cluster is more resilient because it continues to provide system health monitoring even if the production traffic cluster experiences issues.
+-------------------------------------------------------------
 
 ## Installation
 
 Follow along with the video [![Demo 1: Install + Run | Monitoring Kafka in Confluent Control Center](images/play-button.png)](https://youtu.be/a4B5Oer1j2A)
 
-This demo has been verified with Docker version 17.06.1-ce and Docker Compose version 1.14.0, and it uses Docker Compose file format 2.1.
+This demo has been verified with:
 
-1. Since this repository uses submodules, `git clone` with the `--recursive` option:
+* Docker version 17.06.1-ce
+* Docker Compose version 1.14.0 with Docker Compose file format 2.1
+* Java version 1.8.0_92
+* MacOS 10.12
 
-	```
-	$ git clone --recursive https://github.com/confluentinc/cp-demo
-	```
 
-	Otherwise, `git clone` and then use the `submodule` commands to initialize and update:
+1. Download the repository with `git clone`:
 
 	```
 	$ git clone https://github.com/confluentinc/cp-demo
-	$ cd cp-demo
-	$ git submodule init
-	Submodule 'kafka-connect-irc' (https://github.com/cjmatta/kafka-connect-irc) registered for path 'kafka-connect-irc'
-	Submodule 'kafka-connect-transform-wikiedit' (https://github.com/cjmatta/kafka-connect-transform-wikiedit) registered for path 'kafka-connect-transform-wikiedit'
-	$ git submodule update
 	```
 
-2. In the advanced Docker preferences settings, increase the memory available to Docker to at least 8GB (default is 2GB).
-
-3. From the `cp-demo` directory, run `make clean all` to build the IRC connector and the transformer that will parse the Wikipedia edit messages to data. These are saved to `connect-plugins` path, which is a shared volume to the `connect` docker container.
+2. From the `cp-demo` directory, generate certs used for security.
 
 	```bash
-	$ make clean all
-	...
-	$ ls connect-plugins
+        $ (cd security && ./create-certs.sh)
 	```
 
-	_Note_: If `make` has a `FATAL` error as shown below, it means this git repo was not cloned with the submodules. Please go back to step 1 above and correct this.
+3. In the advanced Docker preferences settings, increase the memory available to Docker to at least 8GB (default is 2GB).
 
-	```bash
-	[FATAL] Non-readable POM /private/tmp/cp-demo/kafka-connect-irc/pom.xml: /private/tmp/cp-demo/kafka-connect-irc/pom.xml (No such file or directory)
-	```
 
 ## Run demo
 
@@ -81,16 +71,16 @@ This demo has been verified with Docker version 17.06.1-ce and Docker Compose ve
 	$ docker-compose ps
 	         Name                        Command               State                              Ports                            
 	------------------------------------------------------------------------------------------------------------------------------
-	cpdemo_connect_1          /etc/confluent/docker/run        Up       0.0.0.0:8083->8083/tcp, 9091/tcp                           
-	cpdemo_control-center_1   /etc/confluent/docker/run        Up       0.0.0.0:9021->9021/tcp                                     
-	cpdemo_elasticsearch_1    /bin/bash bin/es-docker          Up       0.0.0.0:9200->9200/tcp, 0.0.0.0:9300->9300/tcp             
-	cpdemo_kafka-client_1     bash -c echo Waiting for K ...   Exit 0                                                              
-	cpdemo_kafka1_1           /etc/confluent/docker/run        Up       0.0.0.0:29091->29091/tcp, 0.0.0.0:9091->9091/tcp           
-	cpdemo_kafka2_1           /etc/confluent/docker/run        Up       0.0.0.0:29092->29092/tcp, 9091/tcp, 0.0.0.0:9092->9092/tcp 
-	cpdemo_kibana_1           /bin/sh -c /usr/local/bin/ ...   Up       0.0.0.0:5601->5601/tcp                                     
-	cpdemo_ksql-cli_1         perl -e while(1){ sleep 99 ...   Up       0.0.0.0:9098->9098/tcp                                     
-	cpdemo_schemaregistry_1   /etc/confluent/docker/run        Up       0.0.0.0:8081->8081/tcp                                     
-	cpdemo_zookeeper_1        /etc/confluent/docker/run        Up       0.0.0.0:2181->2181/tcp, 2888/tcp, 3888/tcp    
+	cpdemo_connect_1          /etc/confluent/docker/run        Up       0.0.0.0:8083->8083/tcp, 9092/tcp
+	cpdemo_control-center_1   /etc/confluent/docker/run        Up       0.0.0.0:9021->9021/tcp
+	cpdemo_elasticsearch_1    /bin/bash bin/es-docker          Up       0.0.0.0:9200->9200/tcp, 0.0.0.0:9300->9300/tcp
+	cpdemo_kafka-client_1     bash -c -a echo Waiting fo ...   Exit 0
+	cpdemo_kafka1_1           /etc/confluent/docker/run        Up       0.0.0.0:29091->29091/tcp, 0.0.0.0:9091->9091/tcp, 9092/tcp
+	cpdemo_kafka2_1           /etc/confluent/docker/run        Up       0.0.0.0:29092->29092/tcp, 0.0.0.0:9092->9092/tcp
+	cpdemo_kibana_1           /bin/sh -c /usr/local/bin/ ...   Up       0.0.0.0:5601->5601/tcp
+	cpdemo_ksql-cli_1         perl -e while(1){ sleep 99 ...   Up       0.0.0.0:9098->9098/tcp
+	cpdemo_schemaregistry_1   /etc/confluent/docker/run        Up       8081/tcp, 0.0.0.0:8082->8082/tcp
+	cpdemo_zookeeper_1        /etc/confluent/docker/run        Up       0.0.0.0:2181->2181/tcp, 2888/tcp, 3888/tcp
 	```
 
 3. Wait till Confluent Control Center is running fully. Verify when it's ready when the logs show the following event
@@ -423,47 +413,6 @@ There are many types of Control Center [alerts](https://docs.confluent.io/curren
 
 	<img src="images/trigger_history.png" width="500" align="center">
 
-### Security
-
-All the components in this demo are enabled with SSL for encryption and SASL/PLAIN for authentication, except for ZooKeeper which does not support SSL. Read [details](https://docs.confluent.io/current/security.html) to deploy Confluent Platform with SSL and other security features.
-
-1. Each broker has four listener ports:
-
-* PLAINTEXT port called `PLAINTEXT` for clients with no security enabled
-* SSL port port called `SSL` for clients with just SSL without SASL
-* SASL_SSL port called `SASL_SSL` for communication between services inside Docker containers
-* SASL_SSL port called `SASL_SSL_HOST` for communication between any potential services outside of Docker that communicate to the Docker containers
-
-|port |kafka1 |kafka2
-|-----|-------|------
-|PLAINTEXT |10091 |10092
-|SSL |11091 |11092
-|SASL_SSL |9091 |9092
-|SASL_SSL_HOST |29091 |29092
-
-Verify the ports on which the Kafka brokers are listening with the following command, and they should match the table shown below:
-
-	```bash
-	$ docker-compose logs kafka1 | grep "Registered broker 1"
-	$ docker-compose logs kafka2 | grep "Registered broker 2"
-	```
-
-2. This demo [automatically generates](security/create-certs.sh) simple SSL certificates and creates keystores, truststores, and secures them with a password. To communicate with the brokers, Kafka clients may use any of the ports on which the brokers are listening. To use a security-enabled port, they must specify security parameters for keystores, trustores, password, or authentication so the Kafka command line client tools pass the security configuration file [with interceptors](security/client_with_interceptors.config) or [without interceptors](security/client_without_interceptors.config) with these security parameters. As an example, to communicate with the Kafka cluster to view all the active consumer groups:
-
-a. Communicate with brokers via the PLAINTEXT port
-
-	# PLAINTEXT port
-	$ docker-compose exec kafka1 kafka-consumer-groups --list --bootstrap-server kafka1:10091
-
-b. Communicate with brokers via the SASL_SSL port, and SASL_SSL parameters configured via the `--command-config` argument for command line tools or `--consumer.config` for kafka-console-consumer.
-
-	# SASL_SSL port with SASL_SSL parameters
-	$ docker-compose exec kafka1 kafka-consumer-groups --list --bootstrap-server kafka1:9091 --command-config /etc/kafka/secrets/client_without_interceptors.config
-
-c. If you try communicate with brokers via the SASL_SSL port but don't specify the SASL_SSL parameters, it will fail
-
-	# SASL_SSL port without SASL_SSL parameters
-	$ docker-compose exec kafka1 kafka-consumer-groups --list --bootstrap-server kafka1:9091
 
 ### Replicator
 
@@ -491,6 +440,129 @@ Confluent Replicator copies data from a source Kafka cluster to a destination Ka
 
         * Even though the consumer group `connect-replicator` was not running for some of this time, all messages are shown as delivered. This is because all bars are time windows relative to produce timestamp.
         * The latency peaks and then gradually decreases, because this is also relative to the produce timestamp.
+
+
+### Security
+
+All the components in this demo are enabled with many [security features](https://docs.confluent.io/current/security.html):
+
+* [SSL](https://docs.confluent.io/current/kafka/authentication_ssl.html) for encryption, except for ZooKeeper which does not support SSL
+* [SASL/PLAIN](https://docs.confluent.io/current/kafka/authentication_sasl_plain.html) for authentication, except for ZooKeeper
+* [Authorization](https://docs.confluent.io/current/kafka/authorization.html). If a resource has no associated ACLs, then users are not allowed to access the resource, except super users
+* [HTTPS for Schema Registry](https://docs.confluent.io/current/schema-registry/docs/security.html)
+
+-------------------------------------------------------------
+_Note_: this demo showcases a secure Confluent Platform for educational purposes and is not meant to be complete best practices. There are certain differences between what is shown in the demo and what you should do in production:
+
+* Each component should have its own username, instead of authenticating all users as ``client``
+* Authorize users only for operations that they need, instead of making all of them super users
+* If the ``PLAINTEXT`` security protocol is used, these ``ANONYMOUS`` usernames should not be configured as super users
+* Consider not even opening the ``PLAINTEXT`` port if ``SSL`` or ``SASL_SSL`` are configured
+-------------------------------------------------------------
+
+Encryption & Authentication: 
+
+Each broker has four listener ports:
+
+* PLAINTEXT port called `PLAINTEXT` for users with no security enabled
+* SSL port port called `SSL` for users with just SSL without SASL
+* SASL_SSL port called `SASL_SSL` for communication between services inside Docker containers
+* SASL_SSL port called `SASL_SSL_HOST` for communication between any potential services outside of Docker that communicate to the Docker containers
+
+|port |kafka1 |kafka2
+|-----|-------|------
+|PLAINTEXT |10091 |10092
+|SSL |11091 |11092
+|SASL_SSL |9091 |9092
+|SASL_SSL_HOST |29091 |29092
+
+Authorization:
+
+All the brokers in this demo authenticate as ``broker``, and all other components authenticate as ``client``. Per the broker configuration parameter ``super.users``, as it is set in this demo, the only users that can communicate with the cluster are those that authenticate as ``broker`` or ``client``, or users that connect via the ``PLAINTEXT`` port (their username is ``ANONYMOUS``). All other users are not authorized to communicate with the cluster.
+
+
+1. Verify the ports on which the Kafka brokers are listening with the following command, and they should match the table shown below:
+
+	```bash
+	$ docker-compose logs kafka1 | grep "Registered broker 1"
+	$ docker-compose logs kafka2 | grep "Registered broker 2"
+	```
+
+2. This demo [automatically generates](security/create-certs.sh) simple SSL certificates and creates keystores, truststores, and secures them with a password. To communicate with the brokers, Kafka clients may use any of the ports on which the brokers are listening. To use a security-enabled port, they must specify security parameters for keystores, truststores, password, or authentication so the Kafka command line client tools pass the security configuration file [with interceptors](security/client_with_interceptors.config) or [without interceptors](security/client_without_interceptors.config) with these security parameters. As an example, to communicate with the Kafka cluster to view all the active consumer groups:
+
+a. Communicate with brokers via the PLAINTEXT port
+
+	# PLAINTEXT port
+	$ docker-compose exec kafka1 kafka-consumer-groups --list --bootstrap-server kafka1:10091
+
+b. Communicate with brokers via the SASL_SSL port, and SASL_SSL parameters configured via the `--command-config` argument for command line tools or `--consumer.config` for kafka-console-consumer.
+
+	# SASL_SSL port with SASL_SSL parameters
+	$ docker-compose exec kafka1 kafka-consumer-groups --list --bootstrap-server kafka1:9091 --command-config /etc/kafka/secrets/client_without_interceptors.config
+
+c. If you try to communicate with brokers via the SASL_SSL port but don't specify the SASL_SSL parameters, it will fail
+
+	```bash
+	# SASL_SSL port without SASL_SSL parameters
+	$ docker-compose exec kafka1 kafka-consumer-groups --list --bootstrap-server kafka1:9091
+
+	Error: Executing consumer group command failed due to Request METADATA failed on brokers List(kafka1:9091 (id: -1 rack: null))
+	```
+
+3. Verify the super users are configured for the authenticated users ``broker``, ``client``, and unauthenticated ``PLAINTEXT``.
+
+	```bash
+	$ docker-compose logs kafka1 | grep SUPER_USERS
+
+	KAFKA_SUPER_USERS=User:client;User:broker;User:ANONYMOUS
+	```
+
+4. Verify that a user ``client`` which authenticates via SASL can consume messages from topic ``wikipedia.parsed``:
+
+	```bash
+	$ ./$DEMOPATH/listen_wikipedia.parsed.sh SASL
+	```
+
+5. Verify that a user which authenticates via SSL cannot consume messages from topic ``wikipedia.parsed``. It fails with an exception ``org.apache.kafka.common.errors.TopicAuthorizationException: Not authorized to access topics: [wikipedia.parsed]``.
+
+	```bash
+	$ ./$DEMOPATH/listen_wikipedia.parsed.sh SSL
+
+	[2018-01-12 21:13:18,481] ERROR Unknown error when running consumer:  (kafka.tools.ConsoleConsumer$)
+	org.apache.kafka.common.errors.TopicAuthorizationException: Not authorized to access topics: [wikipedia.parsed]
+	```
+
+6. Verify that the broker's Authorizer logger logs the denial event. As shown in the log message, the user which authenticates via SSL has a username ``CN=client,OU=TEST,O=CONFLUENT,L=PaloAlto,ST=Ca,C=US``, not just ``client``.
+
+	```bash
+        # Authorizer logger logs the denied operation
+        $ docker-compose logs kafka1 | grep kafka.authorizer.logger
+	
+	[2018-01-12 21:13:18,454] INFO Principal = User:CN=client,OU=TEST,O=CONFLUENT,L=PaloAlto,ST=Ca,C=US is Denied Operation = Describe from host = 172.23.0.7 on resource = Topic:wikipedia.parsed (kafka.authorizer.logger)
+	[2018-01-12 21:13:18,464] INFO Principal = User:CN=client,OU=TEST,O=CONFLUENT,L=PaloAlto,ST=Ca,C=US is Denied Operation = Describe from host = 172.23.0.7 on resource = Group:test (kafka.authorizer.logger)
+	```
+
+7. Add an ACL that authorizes user ``CN=client,OU=TEST,O=CONFLUENT,L=PaloAlto,ST=Ca,C=US``, and then view the updated ACL configuration.
+
+	```bash
+	$ docker-compose exec connect /usr/bin/kafka-acls --authorizer-properties zookeeper.connect=zookeeper:2181 \
+	    --add --topic wikipedia.parsed --allow-principal User:CN=client,OU=TEST,O=CONFLUENT,L=PaloAlto,ST=Ca,C=US --operation Read --group test
+
+	$ docker-compose exec connect /usr/bin/kafka-acls --authorizer-properties zookeeper.connect=zookeeper:2181 \
+	    --list --topic wikipedia.parsed --group test
+
+	Current ACLs for resource `Topic:wikipedia.parsed`: 
+ 		User:CN=client,OU=TEST,O=CONFLUENT,L=PaloAlto,ST=Ca,C=US has Allow permission for operations: Read from hosts: * 
+
+	Current ACLs for resource `Group:test`: 
+ 		User:CN=client,OU=TEST,O=CONFLUENT,L=PaloAlto,ST=Ca,C=US has Allow permission for operations: Read from hosts: * 
+	```
+
+8. Verify that the user which authenticates via SSL is now authorized and can successfully consume some messages from topic ``wikipedia.parsed``.
+
+	```bash
+	$ ./$DEMOPATH/listen_wikipedia.parsed.sh SSL
+	```
 
 
 ## Troubleshooting the demo
